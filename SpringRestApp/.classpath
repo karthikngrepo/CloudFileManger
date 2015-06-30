@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="lib" path="lib/aopalliance-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/classmate-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate-validator-5.0.3.Final.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.3.4.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.3.4.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.3.4.jar"/>
+	<classpathentry kind="lib" path="lib/jboss-logging-3.1.1.GA.jar"/>
+	<classpathentry kind="lib" path="lib/jcl-over-slf4j-1.7.7.jar"/>
+	<classpathentry kind="lib" path="lib/jul-to-slf4j-1.7.7.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-over-slf4j-1.7.7.jar"/>
+	<classpathentry kind="lib" path="lib/logback-classic-1.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/logback-core-1.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.7.jar"/>
+	<classpathentry kind="lib" path="lib/snakeyaml-1.13.jar"/>
+	<classpathentry kind="lib" path="lib/spring-aop-4.0.7.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-beans-4.0.7.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-boot-1.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-boot-autoconfigure-1.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-boot-starter-1.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-boot-starter-logging-1.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-boot-starter-tomcat-1.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-boot-starter-web-1.1.6.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-context-4.0.7.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-core-4.0.7.RELEASE.jar" sourcepath="D:/spring/spring-framework-4.0.0.M1/src/spring-core-4.0.0.M1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/spring-expression-4.0.7.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-web-4.0.7.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-webmvc-4.0.7.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/tomcat-embed-core-7.0.55.jar"/>
+	<classpathentry kind="lib" path="lib/tomcat-embed-el-7.0.55.jar"/>
+	<classpathentry kind="lib" path="lib/tomcat-embed-logging-juli-7.0.55.jar"/>
+	<classpathentry kind="lib" path="lib/validation-api-1.1.0.Final.jar"/>
+	<classpathentry kind="lib" path="lib/commons-dbcp-1.4.jar" sourcepath="C:/Users/kgundego/.m2/repository/commons-dbcp/commons-dbcp/1.4/commons-dbcp-1.4-sources.jar"/>
+	<classpathentry kind="lib" path="lib/commons-pool-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/testng-6.4.jar"/>
+	<classpathentry kind="lib" path="lib/spring-jdbc-4.0.0.RELEASE.jar" sourcepath="D:/spring/spring-framework-4.0.0.M1/src/spring-jdbc-4.0.0.M1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/spring-tx-4.0.7.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/ojdbc6.jar"/>
+	<classpathentry kind="lib" path="D:/p4/razor/external/common/gson/gson-2.2.2/gson-2.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/mongo-java-driver-2.12.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7.0_21"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>
