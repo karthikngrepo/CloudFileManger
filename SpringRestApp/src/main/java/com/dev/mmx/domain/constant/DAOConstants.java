@@ -7,5 +7,5 @@ public class DAOConstants {
 	
 	public static final String MONGO_DB_PORT = "mongodb-port";
 	
-	public static final String MONGO_DB_NAME = "MMDroid";
+	public static final String MONGO_DB_NAME = "mongo-dbname";
 }

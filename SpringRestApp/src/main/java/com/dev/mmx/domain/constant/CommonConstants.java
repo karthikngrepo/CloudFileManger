@@ -24,4 +24,5 @@ public class CommonConstants {
 	public static final String FILE_TYPE = "FILE_TYPE";
 	public static final String FILE_CONTENTTYPE = "FILE_CONTENTTYPE";
 	
+	public static final String RECORD_CREATED = "RECORD_CREATED";
 }

@@ -1,19 +1,26 @@
 package com.dev.mmx.domain.dao;
 
+import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Repository;
 
-import com.dev.mmx.domain.beans.input.FileMetaData;
 import com.dev.mmx.domain.constant.CommonConstants;
 import com.dev.mmx.domain.constant.DAOConstants;
 import com.dev.mmx.domain.exception.CoreException;
+import com.dev.mmx.domain.util.CommonUtilities;
 import com.dev.mmx.domain.util.DAOUtil;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -24,48 +31,69 @@ import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
 @Repository
-@PropertySource("classpath:Queries.properties")
+@PropertySource("classpath:db.properties")
 public class DocumentDAO {
 
-//	@Autowired
-//	private MongoTemplate mongoTemplate;
+	private Logger log = Logger.getLogger(DocumentDAO.class);
 	
 	@Autowired
     Environment env;
 	
-	public void saveDocument(FileMetaData metaData, Path path) throws Exception {
+	/**
+	 * This method handles the logic associated with saving the document from client app
+	 * to mongo DB.
+	 * 
+	 * @param request
+	 * @throws Exception
+	 */
+	public void saveDocumentToDB(HttpServletRequest request) throws Exception {
+		FileOutputStream fos = null;
+		ServletInputStream servletInputStream = null;
 		MongoClient mongo = null;
+		byte[] buffer = new byte[1 * 1024 * 1024];
+				
 		try {
+			String fileName = CommonUtilities.getMetaData(request, CommonConstants.FILE_NAME);
+			log.debug("File name recieved from request : "+fileName);
+			
+			servletInputStream = request.getInputStream();
+			servletInputStream.read(buffer);
+
+			fos = new FileOutputStream(fileName);
+			fos.write(buffer);
+
 			mongo = new MongoClient(env.getProperty(DAOConstants.MONGO_DB_HOST)
 					, Integer.parseInt(env.getProperty(DAOConstants.MONGO_DB_PORT)));
-			
+
 			DB db = mongo.getDB(env.getProperty(DAOConstants.MONGO_DB_NAME));
-			
-			System.out.println("Document is expected in location : "+path.toAbsolutePath());
+
+			Path path = Paths.get(fileName);
+			log.debug("Document is expected in location : "+path.toAbsolutePath());
 			if(!Files.exists(path)) {
 				throw new CoreException("Failed to locate the document locally !!!");
 			}
-			
+
 			GridFS gfs = new GridFS(db, DAOConstants.TABLE_DOCUMENT_BACKUP);
 
 			GridFSInputFile inputFile = gfs.createFile(path.toFile());
-			inputFile.setContentType(metaData.get_contentType());
-			inputFile.setFilename(metaData.get_filename());
-			
+			inputFile.setContentType(CommonUtilities.getMetaData(request, CommonConstants.FILE_CONTENTTYPE));
+			inputFile.setFilename(path.getFileName().toString());
+
 			DBObject dbObject = new BasicDBObject();
-			dbObject.put(CommonConstants.FILE_ACCESSED, DAOUtil.sdf.format(metaData.get_accessed()));
-			dbObject.put(CommonConstants.FILE_CONTENTTYPE, metaData.get_contentType());
-			dbObject.put(CommonConstants.FILE_CREATED, DAOUtil.sdf.format(metaData.get_created()));
-			dbObject.put(CommonConstants.FILE_SIZE, metaData.get_fileSize());
-			dbObject.put(CommonConstants.FILE_TYPE, metaData.get_fileType());
-			dbObject.put(CommonConstants.FILE_LAST_MODIFIED, DAOUtil.sdf.format(metaData.get_lastModified()));
-			dbObject.put(CommonConstants.FILE_OWNER, metaData.get_owner());
+			dbObject.put(CommonConstants.FILE_ACCESSED, DAOUtil.sdf.parse(CommonUtilities.getMetaData(request, CommonConstants.FILE_ACCESSED)));
+			dbObject.put(CommonConstants.FILE_CONTENTTYPE, CommonUtilities.getMetaData(request, CommonConstants.FILE_CONTENTTYPE));
+			dbObject.put(CommonConstants.FILE_CREATED, DAOUtil.sdf.parse(CommonUtilities.getMetaData(request, CommonConstants.FILE_CREATED)));
+			dbObject.put(CommonConstants.FILE_SIZE, CommonUtilities.getFileSize(path));
+			dbObject.put(CommonConstants.FILE_TYPE, CommonUtilities.getMetaData(request, CommonConstants.FILE_TYPE));
+			dbObject.put(CommonConstants.FILE_LAST_MODIFIED, DAOUtil.sdf.parse(CommonUtilities.getMetaData(request, CommonConstants.FILE_LAST_MODIFIED)));
+			dbObject.put(CommonConstants.FILE_OWNER, CommonUtilities.getMetaData(request, CommonConstants.FILE_OWNER));
+			dbObject.put(CommonConstants.RECORD_CREATED, new Date());
 			inputFile.setMetaData(dbObject);
 			inputFile.save();
-			
-			System.out.println("Successfully saved document to DB ...");
+
+			log.debug("Successfully saved document to DB ...");
 			mongo.close();
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			
@@ -82,58 +110,36 @@ public class DocumentDAO {
 				if(mongo != null) {
 					mongo.close();
 				}
+				if(fos != null) {
+					fos.close();
+				}
+				if(servletInputStream != null) {
+					servletInputStream.close();
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		
+		
 	}
-	
-	public List<GridFSDBFile> getDocumentMetadata(FileMetaData[] multipleFileMetaData) throws Exception {
+
+	public List<GridFSDBFile> getDocuments(Path path) throws Exception {
 		MongoClient mongo = null;
 		List<GridFSDBFile> filesFromDB = new ArrayList<GridFSDBFile>();
 		try {
-			System.out.println("Mongo host : "+env.getProperty(DAOConstants.MONGO_DB_HOST));
-			System.out.println("Mongo port : "+env.getProperty(DAOConstants.MONGO_DB_PORT));
+			log.debug("Mongo DB details = "+env.getProperty(DAOConstants.MONGO_DB_HOST)
+					+ ":"+env.getProperty(DAOConstants.MONGO_DB_PORT));
+			
 			mongo = new MongoClient(env.getProperty(DAOConstants.MONGO_DB_HOST)
 					, Integer.parseInt(env.getProperty(DAOConstants.MONGO_DB_PORT)));
 
-			DB db = mongo.getDB(DAOConstants.MONGO_DB_NAME);
+			DB db = mongo.getDB(env.getProperty(DAOConstants.MONGO_DB_NAME));
 			GridFS gfs = new GridFS(db, DAOConstants.TABLE_DOCUMENT_BACKUP);
 
+			filesFromDB.addAll(gfs.find(path.getFileName().toString()));
 
-			for(FileMetaData metaData : multipleFileMetaData) {
-				if(metaData.get_filename() == null) {
-					DBObject dbObject = new BasicDBObject();
-					if(metaData.get_accessed() != null) {
-						dbObject.put(CommonConstants.FILE_ACCESSED, metaData.get_accessed());
-					}
-					if(metaData.get_contentType() != null) {
-						dbObject.put(CommonConstants.FILE_CONTENTTYPE, metaData.get_contentType());
-					}
-					if(metaData.get_created() != null) {
-						dbObject.put(CommonConstants.FILE_CREATED, metaData.get_created());
-					}
-					if(metaData.get_fileSize() != null) {
-						dbObject.put(CommonConstants.FILE_SIZE, metaData.get_fileSize());
-					}
-					if(metaData.get_fileType() != null) {
-						dbObject.put(CommonConstants.FILE_TYPE, metaData.get_fileType());
-					}
-					if(metaData.get_lastModified() != null) {
-						dbObject.put(CommonConstants.FILE_LAST_MODIFIED, metaData.get_lastModified());
-					}
-					if(metaData.get_owner() != null) {
-						dbObject.put(CommonConstants.FILE_OWNER, metaData.get_owner());
-					}
-					filesFromDB.addAll(gfs.find(dbObject));
-
-				} else {
-					filesFromDB.addAll(gfs.find(metaData.get_filename()));
-				}
-			}
-
-			System.out.println("Successfully retrived document from DB ...");
+			log.debug("Successfully retrived documents from DB ...");
 			mongo.close();
 
 		} catch (Exception e) {

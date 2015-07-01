@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.springframework</groupId>
-    <artifactId>virtualization</artifactId>
+    <artifactId>PersonalCloud</artifactId>
     <version>0.1.0</version>
 
     <parent>
@@ -18,6 +18,20 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <dependency>
+    		<groupId>org.springframework.boot</groupId>
+    		<artifactId>spring-boot-starter</artifactId>
+    		<exclusions>
+        		<exclusion>
+            		<groupId>org.springframework.boot</groupId>
+            		<artifactId>spring-boot-starter-logging</artifactId>
+        		</exclusion>
+    		</exclusions>
+		</dependency>
+		<dependency>
+    		<groupId>org.springframework.boot</groupId>
+    		<artifactId>spring-boot-starter-log4j</artifactId>
+		</dependency>
         <dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
@@ -49,8 +63,8 @@
     
 
     <properties>
-        <start-class>com.dev.core.Application</start-class>
-        <!-- Enable Java 8 -->
+        <start-class>com.dev.mmx.Application</start-class>
+        <!-- Enable Java 7 -->
     	<java.version>1.7</java.version>
     </properties>
 

@@ -7,9 +7,16 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
+
 import com.dev.mmx.domain.beans.input.FileMetaData;
 
 public class CommonUtilities {
+	
+	private static Logger log = Logger.getLogger(CommonUtilities.class);
+	
 	public static String convertArrayToCSV(String[] array) {
 		System.out.println("Input Class Names Array:"+array);
 		String classNames = null;
@@ -51,5 +58,21 @@ public class CommonUtilities {
 
 		return metaData;
 	}
+
+	public static String getFileSize(Path path) {
+		long fileSize = 0L;
+		try {
+			if(Files.exists(path)) {
+				fileSize = (Files.size(path)/1024);
+			} 
+		}catch (IOException e) {
+			e.printStackTrace();
+			log.debug("Exception encountered while reading the file size !!!"+e.getMessage());
+		}
+		return fileSize+"KB";
+	}
 	
+	public static String getMetaData(HttpServletRequest request, String string) {
+		return request.getHeader(string);
+	}
 }

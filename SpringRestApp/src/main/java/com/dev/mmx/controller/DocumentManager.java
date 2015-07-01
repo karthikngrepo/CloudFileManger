@@ -1,10 +1,13 @@
 package com.dev.mmx.controller;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,7 +18,6 @@ import com.dev.mmx.domain.beans.input.FileMetaData;
 import com.dev.mmx.domain.constant.CommonConstants;
 import com.dev.mmx.domain.dao.DocumentDAO;
 import com.dev.mmx.domain.util.CommonUtilities;
-import com.dev.mmx.domain.util.DAOUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.gridfs.GridFSDBFile;
 
@@ -25,8 +27,10 @@ import com.mongodb.gridfs.GridFSDBFile;
  *
  */
 @RestController
-@RequestMapping(value= "/filemanger")
-public class StatsManager {
+@RequestMapping(value= "/cloud")
+public class DocumentManager {
+	
+	private Logger log = Logger.getLogger(DocumentManager.class);
 	
 	private static final String STATUS_SUCCESS = "SAVE SUCCESS";
 	
@@ -35,27 +39,22 @@ public class StatsManager {
 	@Autowired
 	private DocumentDAO documentDAO;
 	
-	@RequestMapping(value="/save", method=RequestMethod.POST)
-	public String storeFileInDB(@RequestParam(value="location", required=true) String location, 
-			@RequestParam(value="filename", required=true) String filename) throws Exception {
+	@RequestMapping(value="/documents/upload", method=RequestMethod.POST)
+	public String upload(HttpServletRequest request) throws Exception {
 		
-		ObjectMapper mapper = new ObjectMapper();
-    	
-		FileMetaData metaData = CommonUtilities.getFileMetaInfo(Paths.get("./"+filename));
-		
-		documentDAO.saveDocument(metaData, Paths.get("./"+filename));
+		documentDAO.saveDocumentToDB(request);
 		
 		return STATUS_SUCCESS;
 	}
 	
-	@RequestMapping(value="/pulldocumentmetainfo", method=RequestMethod.GET)
-	public List<FileMetaData> getDocumentMetaInfo(@RequestParam(value="metaData", required=true) String metaData) throws Exception {
+	@RequestMapping(value="/documents/metainfo", method=RequestMethod.GET)
+	public List<FileMetaData> getDocumentMetaInfo(HttpServletRequest request) throws Exception {
 		
 		ObjectMapper mapper = new ObjectMapper();
-    	FileMetaData[] fileMetaData = mapper.readValue(metaData, FileMetaData[].class);
     	List<FileMetaData> metaDataList = new ArrayList<FileMetaData>();
     	
-    	List<GridFSDBFile> documents = documentDAO.getDocumentMetadata(fileMetaData);
+    	Path filepath = Paths.get(CommonUtilities.getMetaData(request, CommonConstants.FILE_NAME));
+    	List<GridFSDBFile> documents = documentDAO.getDocuments(filepath);
     	
     	for (GridFSDBFile gridFSDBFile : documents) {
     		FileMetaData metaDataFromDB = new FileMetaData();
